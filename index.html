@@ -86,8 +86,14 @@ button{font-family:inherit;}
   transition:opacity .5s ease;
 }
 #boot.hide{ opacity:0; pointer-events:none; }
-.boot-greeting{ font-family:var(--font-display); font-style:italic; font-weight:450; font-size:22px; color:#e9e7e1; letter-spacing:.01em; opacity:0; transform:translateY(6px); animation:greetIn .9s ease forwards; margin-bottom:6px; }
-@keyframes greetIn{ to{ opacity:1; transform:none; } }
+.boot-type{
+  font-family:'SF Pro Display','SF Display Pro','SF Pro',-apple-system,BlinkMacSystemFont,'Inter','Segoe UI',sans-serif;
+  font-weight:600; font-size:clamp(26px,6.2vw,42px); letter-spacing:-.02em; color:#f2f5fb;
+  min-height:1.25em; display:flex; align-items:center; justify-content:center; white-space:nowrap; margin-bottom:6px;
+  -webkit-font-smoothing:antialiased;
+}
+.boot-caret{ display:inline-block; width:2px; height:1.05em; margin-left:4px; background:linear-gradient(180deg,#6aa4ff,#2563eb); border-radius:1px; animation:caretBlink 1s steps(1) infinite; }
+@keyframes caretBlink{ 0%,49%{ opacity:1; } 50%,100%{ opacity:0; } }
 .boot-mark{ display:flex; flex-direction:column; align-items:center; gap:14px; }
 .boot-badge{
   width:56px; height:56px; border-radius:15px;
@@ -99,7 +105,7 @@ button{font-family:inherit;}
 }
 .boot-name{ font-family:var(--font-ui); font-size:12.5px; letter-spacing:.14em; color:#8a8d99; text-transform:uppercase; }
 .boot-bar-track{ width:220px; height:3px; border-radius:2px; background:#1c1e26; overflow:hidden; }
-.boot-bar-fill{ height:100%; width:0%; background:linear-gradient(90deg,#8a5a2a,var(--amber)); border-radius:2px; transition:width .12s linear; }
+.boot-bar-fill{ height:100%; width:0%; background:linear-gradient(90deg,#2563eb,#6aa4ff); border-radius:2px; transition:width .1s linear; }
 .boot-status{ font-size:11px; color:#5b5e69; letter-spacing:.04em; height:14px; }
 .boot-skip{ position:absolute; bottom:34px; font-size:11px; color:#4a4d57; letter-spacing:.04em; }
 
@@ -536,7 +542,7 @@ button{font-family:inherit;}
 <body data-wallpaper="portrait">
 
 <div id="boot">
-  <div class="boot-greeting">Assalamu Alaikum</div>
+  <div class="boot-type" aria-label="Sayedul Islam Shuvo"><span id="bootText"></span><span class="boot-caret"></span></div>
   <div class="boot-bar-track"><div class="boot-bar-fill" id="bootFill"></div></div>
 </div>
 
@@ -826,19 +832,30 @@ function toast(msg){
 (function boot(){
   const fill = document.getElementById('bootFill');
   const bootEl = document.getElementById('boot');
-  let pct = 0;
-  const iv = setInterval(()=>{
-    pct += Math.random()*14 + 6;
-    if(pct >= 100){ pct = 100; clearInterval(iv); finishBoot(); }
-    fill.style.width = pct+'%';
-  }, 220);
+  const textEl = document.getElementById('bootText');
+  const NAME = 'Sayedul Islam Shuvo';
+  let i = 0, done = false, timer = null;
   function finishBoot(){
-    setTimeout(()=>{
-      bootEl.classList.add('hide');
-      setTimeout(()=> bootEl.style.display='none', 550);
-    }, 260);
+    if(done) return;
+    done = true; clearTimeout(timer);
+    bootEl.classList.add('hide');
+    setTimeout(()=> bootEl.style.display='none', 550);
   }
-  bootEl.addEventListener('click', ()=>{ clearInterval(iv); finishBoot(); });
+  function typeNext(){
+    if(done) return;
+    i++;
+    textEl.textContent = NAME.slice(0, i);
+    fill.style.width = (i / NAME.length * 100) + '%';
+    if(i >= NAME.length){ timer = setTimeout(finishBoot, 1000); return; }
+    timer = setTimeout(typeNext, NAME[i-1] === ' ' ? 190 : 75 + Math.random()*65);
+  }
+  if(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches){
+    textEl.textContent = NAME; fill.style.width = '100%';
+    timer = setTimeout(finishBoot, 700);
+  } else {
+    timer = setTimeout(typeNext, 500);
+  }
+  bootEl.addEventListener('click', ()=>{ textEl.textContent = NAME; fill.style.width = '100%'; setTimeout(finishBoot, 150); });
 })();
 
 /* ============================= CLOCK ============================= */
