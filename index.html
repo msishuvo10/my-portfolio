@@ -156,7 +156,8 @@ button{font-family:inherit;}
   z-index:500; user-select:none;
   height:calc(30px + var(--safe-t));
 }
-.mb-left, .mb-right{ display:flex; align-items:center; gap:2px; height:100%; }
+.mb-left, .mb-right{ display:flex; align-items:center; gap:2px; height:100%; white-space:nowrap; }
+#menubar, .mb-item, .mb-clock{ white-space:nowrap; }
 .mb-badge{ font-family:var(--font-display); font-weight:600; color:var(--accent); margin-right:8px; font-size:13px; letter-spacing:.02em; }
 .mb-item{ padding:0 9px; height:100%; display:flex; align-items:center; border-radius:4px; cursor:default; position:relative; color:#d9d8d3; }
 .mb-item.creator{ color:#8f929e; }
@@ -462,13 +463,38 @@ button{font-family:inherit;}
 
 /* ---- Mobile responsive sheets ---- */
 @media (max-width:760px){
-  .window{ position:fixed !important; inset:0 !important; width:100% !important; height:100% !important; border-radius:0; top:0 !important; left:0 !important; transform:none !important; }
-  .win-titlebar{ padding-top:calc(10px + var(--safe-t)); height:calc(44px + var(--safe-t)); }
-  #folders{ top:44px; left:14px; gap:18px; }
-  .folder{ width:82px; }
-  .proj-grid{ grid-template-columns:1fr 1fr; }
+  #menubar{ height:calc(38px + var(--safe-t)); padding-left:6px; padding-right:8px; font-size:13px; }
+  .mb-item{ padding:0 9px; }
+  .mb-item.creator, .mb-battery, .clk-date, .mb-right .mb-icon-btn:not(#spotlightBtn){ display:none; }
+  .mb-clock{ padding:0 4px 0 6px; font-size:12.5px; font-weight:600; }
+  .mb-icon-btn{ width:32px; height:30px; }
+  .window{
+    position:fixed !important; left:0 !important; right:0 !important; width:auto !important; height:auto !important;
+    top:calc(38px + var(--safe-t)) !important; bottom:calc(84px + var(--safe-b)) !important;
+    border-radius:18px 18px 0 0; border-left:none; border-right:none; transform:none !important;
+  }
+  .win-titlebar{ height:48px; padding:0 14px; gap:14px; cursor:default; }
+  .traffic{ gap:10px; }
+  .traffic button{ width:16px; height:16px; }
+  .traffic button svg{ width:9px; height:9px; opacity:.5; }
+  .win-title{ margin-right:68px; font-size:13.5px; }
+  .toolbar{ padding:10px 12px; }
+  .chip-row{ flex-wrap:nowrap; overflow-x:auto; scrollbar-width:none; padding-bottom:2px; }
+  .chip-row::-webkit-scrollbar{ display:none; }
+  .search-box{ flex:1; min-width:0; }
+  #folders{ top:50px; left:12px; gap:14px; }
+  .folder{ width:80px; }
+  .proj-grid{ grid-template-columns:1fr 1fr; gap:12px; padding:12px; }
+  .gal-grid{ gap:10px; padding:12px; }
   .contact-id{ padding:18px; }
-  #dock-wrap{ gap:8px; bottom:12px; }
+  .contact-form{ padding:20px 18px; }
+  .f-row2{ grid-template-columns:1fr; }
+  .about-wrap{ padding:20px 18px; }
+  .spec-grid{ grid-template-columns:1fr; }
+  .social-grid{ padding:16px; }
+  .modal-overlay{ padding:10px; }
+  .cmdk-overlay{ padding-top:9vh; }
+  #dock-wrap{ gap:8px; bottom:calc(12px + var(--safe-b)); padding-bottom:0; }
   #dock{ gap:2px; padding:6px; }
   .dock-apps{ gap:2px; }
   .dock-item{ width:40px; height:46px; }
@@ -478,6 +504,14 @@ button{font-family:inherit;}
   .dock-item .dock-dot{ bottom:3px; }
   .dock-circle{ width:46px; height:46px; }
   .dock-circle svg{ width:20px; height:20px; }
+}
+@media (hover:none){
+  .gal-exif{ opacity:1; background:linear-gradient(0deg, rgba(0,0,0,.82) 0%, rgba(0,0,0,.1) 48%, transparent 62%); }
+  .dock-tip{ display:none !important; }
+}
+.gal-tile::before{
+  content:''; position:absolute; inset:0; pointer-events:none; opacity:.16;
+  background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='1' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='3' y='4.5' width='18' height='15' rx='2.5'/%3E%3Ccircle cx='9' cy='10' r='1.6'/%3E%3Cpath d='M4 17l5-5 3.5 3.5L16 12l4 4'/%3E%3C/svg%3E") center 38%/38% no-repeat;
 }
 @media (max-width:420px){
   .proj-grid{ grid-template-columns:1fr; }
@@ -803,7 +837,7 @@ function tickClock(){
   let h = d.getHours(); const m = d.getMinutes();
   const ampm = h>=12?'PM':'AM'; h = h%12; if(h===0) h=12;
   const days=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
-  el.textContent = `${days[d.getDay()]} ${d.getMonth()+1}/${d.getDate()}  ${h}:${String(m).padStart(2,'0')} ${ampm}`;
+  el.innerHTML = `<span class="clk-date">${days[d.getDay()]} ${d.getMonth()+1}/${d.getDate()}&nbsp; </span><span class="clk-time">${h}:${String(m).padStart(2,'0')} ${ampm}</span>`;
 }
 tickClock(); setInterval(tickClock, 15000);
 
